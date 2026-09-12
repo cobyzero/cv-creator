@@ -1,0 +1,5 @@
+{
+  "private": true,
+  "scripts": { "dev": "concurrently \"npm:dev --prefix frontend\" \"npm:dev --prefix backend\"" },
+  "devDependencies": { "concurrently": "^9.0.0" }
+}
