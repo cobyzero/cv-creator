@@ -33,6 +33,13 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# local cv-creator
+*.db
+*.db-journal
+/data/
+.opencode/
+.superpowers/
+
 # vercel
 .vercel
 
