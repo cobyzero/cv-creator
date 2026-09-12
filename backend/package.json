@@ -2,7 +2,11 @@
   "name": "cv-backend",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "typecheck": "tsc --noEmit",
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "better-sqlite3": "^11.3.0",
@@ -19,6 +23,7 @@
     "@types/express": "^5.0.6",
     "@types/multer": "^2.2.0",
     "@types/node": "^22.20.2",
+    "@types/pdf-parse": "^1.1.5",
     "tsx": "^4.11.0",
     "typescript": "^5.5.0"
   }

@@ -2,8 +2,9 @@
 
 # dependencies
 node_modules/
- frontend/dist/
- backend/cv.db
+frontend/dist/
+backend/dist/
+backend/cv.db
 /.pnp
 .pnp.*
 .yarn/*
