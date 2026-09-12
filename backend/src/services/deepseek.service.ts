@@ -1,7 +1,7 @@
 import { DEEPSEEK_API_KEY } from "../config/env.js";
 import { CvSchema, type CvJson } from "../schemas/cv.schema.js";
 
-const SYS = "Devuelve SOLO JSON valido con schema: personal{nombre,email,telefono,ciudad,linkedin}, resumen, experiencia[{puesto,empresa,fechas,bullets[]}], educacion[], skills[], idiomas[]. Sin markdown.";
+const SYS = "Devuelve SOLO JSON valido con schema: personal{nombre,email,telefono,ciudad,linkedin}, resumen, experiencia[{puesto,empresa,fechas,bullets[]}], educacion[], skills[], idiomas[]. Reglas: skills e idiomas son arrays de strings planos (ej. [\"Español (nativo)\", \"Inglés avanzado\"]), nunca objetos. bullets son strings planos. Sin markdown, sin texto fuera del JSON.";
 
 // DeepSeek a veces responde prosa ("Aquí tiene el JSON…"): recorta
 // desde el primer { al último } antes de parsear.
