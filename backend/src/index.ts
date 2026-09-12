@@ -1,22 +1,29 @@
 import express from "express"; import cors from "cors";
 import multer from "multer"; import pdf from "pdf-parse";
 import { callDeepseek } from "./deepseek.js"; import { db } from "./db.js";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 const app = express(); app.use(cors()); app.use(express.json({limit:"2mb"}));
+function textHash(s: string) { return createHash("sha256").update(s.normalize("NFC").replace(/\s+/g, " ").trim()).digest("hex"); }
 const upload = multer({ storage: multer.memoryStorage() });
 app.post("/api/import", upload.single("file"), async (req,res)=>{
   if(!req.file) return res.status(400).json({error:"falta PDF"});
   try {
     const parsed = await pdf(req.file.buffer);
     const raw_text = (parsed.text||"").trim();
-    if(raw_text.length<50) return res.json({scanned:true, raw_text});
-    res.json({scanned:false, raw_text});
+    const hash = textHash(raw_text);
+    if(raw_text.length<50) return res.json({scanned:true, raw_text, hash});
+    res.json({scanned:false, raw_text, hash});
   } catch(e:any){ res.status(400).json({error:"PDF invalido: "+String(e.message||e)}); }
 });
 app.post("/api/analyze", async (req,res)=>{
-  try{ const json = await callDeepseek(req.body.raw_text||"");
-    db.prepare("INSERT INTO imports VALUES(?,?,?,?,?)").run(randomUUID(), req.body.filename||"", (req.body.raw_text||"").slice(0,5000), JSON.stringify(json).slice(0,5000), new Date().toISOString());
-    res.json({cv_json: json}); }
+  try{
+    const raw = req.body.raw_text||"";
+    const hash = textHash(raw);
+    const hit = db.prepare("SELECT json_result FROM imports WHERE hash=?").get(hash) as any;
+    if (hit?.json_result) return res.json({cv_json: JSON.parse(hit.json_result), cached: true, hash});
+    const json = await callDeepseek(raw);
+    db.prepare("INSERT OR IGNORE INTO imports VALUES(?,?,?,?,?,?)").run(randomUUID(), req.body.filename||"", raw.slice(0,5000), JSON.stringify(json).slice(0,20000), new Date().toISOString(), hash);
+    res.json({cv_json: json, cached: false, hash}); }
   catch(e:any){ res.status(502).json({error:String(e.message||e)}); }
 });
 app.get("/api/cvs", (_req,res)=>{ res.json(db.prepare("SELECT * FROM cvs ORDER BY updated_at DESC").all()); });
