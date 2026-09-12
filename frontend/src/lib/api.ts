@@ -4,3 +4,4 @@ export async function analyze(raw_text:string, filename?:string){ const r=await 
 export async function saveCv(title:string,data:any){ const r=await fetch(`${API}/api/cvs`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,data})}); return r.json(); }
 export async function listCvs(){ const r=await fetch(`${API}/api/cvs`); return r.json(); }
 export async function updateCv(id:string,title:string,data:any){ await fetch(`${API}/api/cvs/${id}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({title,data})}); }
+export async function tailor(cv:any, vacante:string){ const r=await fetch(`${API}/api/tailor`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cv, vacante})}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
