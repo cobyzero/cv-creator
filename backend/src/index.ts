@@ -1,3 +1,10 @@
+import dotenv from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+for (const p of [path.resolve(process.cwd(), "backend/.env"), path.resolve(process.cwd(), ".env"), path.resolve(__dirname, "../.env"), path.resolve(__dirname, "../../.env")]) {
+  if (!dotenv.config({ path: p }).error) break;
+}
 import express from "express"; import cors from "cors";
 import multer from "multer"; import pdf from "pdf-parse";
 import { callDeepseek } from "./deepseek.js"; import { db } from "./db.js";
@@ -34,4 +41,5 @@ app.put("/api/cvs/:id", (req,res)=>{ const now=new Date().toISOString();
   db.prepare("UPDATE cvs SET title=?, data=?, updated_at=? WHERE id=?").run(req.body.title, JSON.stringify(req.body.data), now, req.params.id);
   res.json({ok:true}); });
 app.delete("/api/cvs/:id", (req,res)=>{ db.prepare("DELETE FROM cvs WHERE id=?").run(req.params.id); res.json({ok:true}); });
-app.listen(3001, ()=>console.log("backend :3001"));
+const PORT = Number(process.env.PORT) || 3001;
+app.listen(PORT, ()=>console.log(`backend :${PORT}`));
